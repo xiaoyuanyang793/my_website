@@ -201,6 +201,35 @@ article h3 {
   max-width: 620px;
 }
 
+.message-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.message-card {
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #d8dee6;
+  border-radius: 8px;
+}
+
+.message-card h3 {
+  margin: 0 0 8px;
+}
+
+.message-card p {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.message-time {
+  display: block;
+  margin-top: 10px;
+  color: #697586;
+  font-size: 14px;
+}
+
 .contact {
   display: flex;
   justify-content: space-between;

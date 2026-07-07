@@ -9,7 +9,7 @@
 <body>
   <header class="site-header">
     <nav>
-      <strong>小杨的主页喵</strong>
+      <strong>小杨的主页</strong>
       <div>
         <a href="#about">介绍</a>
         <a href="#skills">技能</a>
@@ -26,7 +26,7 @@
         <p class="eyebrow">我的第一个完整网页</p>
         <h1>你好，我正在学习制作网页</h1>
         <p>这个页面包含个人介绍、技能列表、作品展示和联系方式。它已经很接近一个真正的个人主页了。</p>
-        <p class="version-note">新版更新：这个网站现在已经支持在线留言。</p>
+        <p class="version-note">新版更新：这个网站现在已经支持公开留言板。</p>
         <button onclick="showMessage()">给我一个提示</button>
       </div>
       <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop" alt="一台正在写代码的电脑">
@@ -87,24 +87,24 @@
     <section class="message-section" id="message">
       <div class="section-title">
         <p class="eyebrow">Message</p>
-        <h2>给我留言</h2>
+        <h2>公开留言板</h2>
       </div>
-      <form name="message" method="POST" action="/success.html" data-netlify="true">
-        <input type="hidden" name="form-name" value="message">
+      <form id="publicMessageForm">
         <label>
           你的名字
-          <input name="name" type="text" placeholder="比如：小杨" required>
-        </label>
-        <label>
-          你的邮箱
-          <input name="email" type="email" placeholder="比如：hello@example.com" required>
+          <input id="publicNameInput" name="name" type="text" placeholder="比如：小杨" required>
         </label>
         <label>
           留言内容
-          <textarea name="message" placeholder="写下你想说的话" required></textarea>
+          <textarea id="publicMessageInput" name="message" placeholder="写下你想公开显示的话" required></textarea>
         </label>
         <button type="submit">发送留言</button>
+        <p id="publicMessageStatus">留言会保存到 Supabase 数据库，并显示在下方。</p>
       </form>
+
+      <div class="message-list" id="publicMessageList">
+        <p>正在加载留言...</p>
+      </div>
     </section>
 
     <section class="contact" id="contact">
@@ -117,6 +117,7 @@
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
 </html>
