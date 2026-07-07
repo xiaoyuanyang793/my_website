@@ -88,7 +88,43 @@ async function loginAccount(event) {
 
   loginForm.reset();
   loginStatus.textContent = "登录成功。";
+  await claimAdminRoleIfNeeded(email);
   refreshSession();
+}
+
+async function claimAdminRoleIfNeeded(email) {
+  const pendingAdminKey = localStorage.getItem("pendingAdminKey:" + email);
+
+  if (!pendingAdminKey) {
+    return;
+  }
+
+  const { data: sessionData } = await database.auth.getSession();
+  const accessToken = sessionData.session?.access_token;
+
+  if (!accessToken) {
+    return;
+  }
+
+  const response = await fetch("/.netlify/functions/claim-admin", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + accessToken
+    },
+    body: JSON.stringify({ adminKey: pendingAdminKey })
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    loginStatus.textContent = "登录成功，但管理员授权失败：" + result.message;
+    return;
+  }
+
+  localStorage.removeItem("pendingAdminKey:" + email);
+  await database.auth.refreshSession();
+  loginStatus.textContent = "管理员授权成功。";
 }
 
 async function registerAccount(event) {
@@ -105,25 +141,22 @@ async function registerAccount(event) {
 
   registerStatus.textContent = "正在注册...";
 
-  const response = await fetch("/.netlify/functions/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ email, password, adminKey })
+  const { error } = await database.auth.signUp({
+    email,
+    password
   });
 
-  const result = await response.json();
-
-  if (!response.ok) {
-    registerStatus.textContent = "注册失败：" + result.message;
+  if (error) {
+    registerStatus.textContent = "注册失败：" + error.message;
     return;
   }
 
+  if (adminKey !== "") {
+    localStorage.setItem("pendingAdminKey:" + email, adminKey);
+  }
+
   registerForm.reset();
-  loginStatus.textContent = result.role === "admin"
-    ? "管理员账号已注册，请登录。"
-    : "普通用户账号已注册，请登录。";
+  loginStatus.textContent = "账号已注册。请先点击邮箱里的确认链接，然后回来登录。";
   showView("login");
 }
 
