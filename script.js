@@ -1,6 +1,5 @@
 const supabaseUrl = "https://bbdwqbjqdxwewsyxxlcz.supabase.co";
 const supabaseKey = "sb_publishable_Zws8mlLa6I5sgz0_ocIzrA_CPWxYBxc";
-const adminInviteKey = "070619";
 const database = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 const loginView = document.querySelector("#loginView");
@@ -35,7 +34,7 @@ function showView(viewName) {
 }
 
 function getUserRole(user) {
-  return user?.user_metadata?.role === "admin" ? "admin" : "user";
+  return user?.app_metadata?.role === "admin" ? "admin" : "user";
 }
 
 async function refreshSession() {
@@ -104,31 +103,27 @@ async function registerAccount(event) {
     return;
   }
 
-  if (adminKey !== "" && adminKey !== adminInviteKey) {
-    registerStatus.textContent = "管理员密钥不正确。留空可以注册为普通用户。";
-    return;
-  }
-
-  const role = adminKey === adminInviteKey ? "admin" : "user";
   registerStatus.textContent = "正在注册...";
 
-  const { error } = await database.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { role }
-    }
+  const response = await fetch("/.netlify/functions/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email, password, adminKey })
   });
 
-  if (error) {
-    registerStatus.textContent = "注册失败：" + error.message;
+  const result = await response.json();
+
+  if (!response.ok) {
+    registerStatus.textContent = "注册失败：" + result.message;
     return;
   }
 
   registerForm.reset();
-  loginStatus.textContent = role === "admin"
-    ? "管理员账号已注册。请查看邮箱确认邮件，然后登录。"
-    : "普通用户账号已注册。请查看邮箱确认邮件，然后登录。";
+  loginStatus.textContent = result.role === "admin"
+    ? "管理员账号已注册，请登录。"
+    : "普通用户账号已注册，请登录。";
   showView("login");
 }
 
