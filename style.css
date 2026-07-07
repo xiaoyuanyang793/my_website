@@ -11,6 +11,16 @@ body {
   padding: 34px 18px 60px;
 }
 
+.auth-card {
+  max-width: 440px;
+  margin: 12vh auto 0;
+  padding: 28px;
+  background: white;
+  border: 1px solid #d8dee6;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
 .board-panel {
   padding: 28px;
   background: white;
@@ -73,6 +83,18 @@ button:hover {
 .tab-button.active {
   background: #2563eb;
   color: white;
+}
+
+.link-button {
+  padding: 0;
+  background: transparent;
+  color: #2563eb;
+  font-weight: bold;
+}
+
+.link-button:hover {
+  background: transparent;
+  color: #1d4ed8;
 }
 
 label {

@@ -3,16 +3,21 @@ const supabaseKey = "sb_publishable_Zws8mlLa6I5sgz0_ocIzrA_CPWxYBxc";
 const adminInviteKey = "070619";
 const database = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-const loginTabButton = document.querySelector("#loginTabButton");
-const registerTabButton = document.querySelector("#registerTabButton");
-const authForm = document.querySelector("#authForm");
-const emailInput = document.querySelector("#emailInput");
-const passwordInput = document.querySelector("#passwordInput");
-const adminKeyLabel = document.querySelector("#adminKeyLabel");
+const loginView = document.querySelector("#loginView");
+const registerView = document.querySelector("#registerView");
+const boardView = document.querySelector("#boardView");
+const loginForm = document.querySelector("#loginForm");
+const registerForm = document.querySelector("#registerForm");
+const loginEmailInput = document.querySelector("#loginEmailInput");
+const loginPasswordInput = document.querySelector("#loginPasswordInput");
+const registerEmailInput = document.querySelector("#registerEmailInput");
+const registerPasswordInput = document.querySelector("#registerPasswordInput");
 const adminKeyInput = document.querySelector("#adminKeyInput");
-const authSubmitButton = document.querySelector("#authSubmitButton");
+const loginStatus = document.querySelector("#loginStatus");
+const registerStatus = document.querySelector("#registerStatus");
+const showRegisterButton = document.querySelector("#showRegisterButton");
+const showLoginButton = document.querySelector("#showLoginButton");
 const logoutButton = document.querySelector("#logoutButton");
-const authStatus = document.querySelector("#authStatus");
 const modeBanner = document.querySelector("#modeBanner");
 const messageForm = document.querySelector("#messageForm");
 const nameInput = document.querySelector("#nameInput");
@@ -20,21 +25,13 @@ const messageInput = document.querySelector("#messageInput");
 const messageStatus = document.querySelector("#messageStatus");
 const messageList = document.querySelector("#messageList");
 
-let authMode = "login";
 let currentUser = null;
 let currentRole = "guest";
 
-function setAuthMode(mode) {
-  authMode = mode;
-  const isRegisterMode = mode === "register";
-
-  loginTabButton.classList.toggle("active", !isRegisterMode);
-  registerTabButton.classList.toggle("active", isRegisterMode);
-  adminKeyLabel.classList.toggle("hidden", !isRegisterMode);
-  authSubmitButton.textContent = isRegisterMode ? "注册" : "登录";
-  authStatus.textContent = isRegisterMode
-    ? "输入管理员密钥 070619 会注册为管理员；不填则注册为普通用户。"
-    : "输入邮箱和密码登录。";
+function showView(viewName) {
+  loginView.classList.toggle("hidden", viewName !== "login");
+  registerView.classList.toggle("hidden", viewName !== "register");
+  boardView.classList.toggle("hidden", viewName !== "board");
 }
 
 function getUserRole(user) {
@@ -44,62 +41,76 @@ function getUserRole(user) {
 async function refreshSession() {
   const { data } = await database.auth.getUser();
   currentUser = data.user;
-  currentRole = currentUser ? getUserRole(currentUser) : "guest";
-  renderMode();
+
+  if (!currentUser) {
+    currentRole = "guest";
+    showView("login");
+    return;
+  }
+
+  currentRole = getUserRole(currentUser);
+  showView("board");
+  renderBoardMode();
   loadMessages();
 }
 
-function renderMode() {
+function renderBoardMode() {
   modeBanner.classList.toggle("admin", currentRole === "admin");
 
   if (currentRole === "admin") {
-    authStatus.textContent = "管理员已登录：" + currentUser.email;
-    modeBanner.innerHTML = "<strong>管理员模式</strong><span>可以发布和删除留言。</span>";
+    modeBanner.innerHTML = `<strong>管理员模式</strong><span>${escapeHtml(currentUser.email)}，可以发布和删除留言。</span>`;
     messageStatus.textContent = "管理员可以发布留言，也可以删除留言。";
     return;
   }
 
-  if (currentRole === "user") {
-    authStatus.textContent = "用户已登录：" + currentUser.email;
-    modeBanner.innerHTML = "<strong>用户模式</strong><span>可以发布留言，不能删除留言。</span>";
-    messageStatus.textContent = "你可以发布留言。";
-    return;
-  }
-
-  authStatus.textContent = "当前未登录。";
-  modeBanner.innerHTML = "<strong>游客模式</strong><span>可以浏览留言。登录后可以发布留言。</span>";
-  messageStatus.textContent = "登录后可以发布留言。";
+  modeBanner.innerHTML = `<strong>用户模式</strong><span>${escapeHtml(currentUser.email)}，可以发布留言。</span>`;
+  messageStatus.textContent = "你可以发布留言。";
 }
 
-async function handleAuthSubmit(event) {
+async function loginAccount(event) {
   event.preventDefault();
 
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
+  const email = loginEmailInput.value.trim();
+  const password = loginPasswordInput.value.trim();
 
   if (email === "" || password === "") {
-    authStatus.textContent = "请填写邮箱和密码。";
+    loginStatus.textContent = "请填写邮箱和密码。";
     return;
   }
 
-  if (authMode === "register") {
-    await registerAccount(email, password);
+  loginStatus.textContent = "正在登录...";
+
+  const { error } = await database.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    loginStatus.textContent = "登录失败：" + error.message;
     return;
   }
 
-  await loginAccount(email, password);
+  loginForm.reset();
+  loginStatus.textContent = "登录成功。";
+  refreshSession();
 }
 
-async function registerAccount(email, password) {
-  const adminKey = adminKeyInput.value.trim();
-  const role = adminKey === adminInviteKey ? "admin" : "user";
+async function registerAccount(event) {
+  event.preventDefault();
 
-  if (adminKey !== "" && adminKey !== adminInviteKey) {
-    authStatus.textContent = "管理员密钥不正确。留空可以注册为普通用户。";
+  const email = registerEmailInput.value.trim();
+  const password = registerPasswordInput.value.trim();
+  const adminKey = adminKeyInput.value.trim();
+
+  if (email === "" || password === "") {
+    registerStatus.textContent = "请填写邮箱和密码。";
     return;
   }
 
-  authStatus.textContent = "正在注册...";
+  if (adminKey !== "" && adminKey !== adminInviteKey) {
+    registerStatus.textContent = "管理员密钥不正确。留空可以注册为普通用户。";
+    return;
+  }
+
+  const role = adminKey === adminInviteKey ? "admin" : "user";
+  registerStatus.textContent = "正在注册...";
 
   const { error } = await database.auth.signUp({
     email,
@@ -110,38 +121,24 @@ async function registerAccount(email, password) {
   });
 
   if (error) {
-    authStatus.textContent = "注册失败：" + error.message;
+    registerStatus.textContent = "注册失败：" + error.message;
     return;
   }
 
-  authForm.reset();
-  authStatus.textContent = role === "admin"
+  registerForm.reset();
+  loginStatus.textContent = role === "admin"
     ? "管理员账号已注册。请查看邮箱确认邮件，然后登录。"
     : "普通用户账号已注册。请查看邮箱确认邮件，然后登录。";
-  setAuthMode("login");
-}
-
-async function loginAccount(email, password) {
-  authStatus.textContent = "正在登录...";
-
-  const { error } = await database.auth.signInWithPassword({ email, password });
-
-  if (error) {
-    authStatus.textContent = "登录失败：" + error.message;
-    return;
-  }
-
-  authForm.reset();
-  refreshSession();
+  showView("login");
 }
 
 async function logoutAccount() {
-  authStatus.textContent = "正在退出...";
   await database.auth.signOut();
   currentUser = null;
   currentRole = "guest";
-  renderMode();
-  loadMessages();
+  messageList.innerHTML = "";
+  loginStatus.textContent = "已退出，请重新登录。";
+  showView("login");
 }
 
 async function loadMessages() {
@@ -183,11 +180,6 @@ async function loadMessages() {
 
 async function submitMessage(event) {
   event.preventDefault();
-
-  if (!currentUser) {
-    messageStatus.textContent = "请先登录再发布留言。";
-    return;
-  }
 
   const name = nameInput.value.trim();
   const message = messageInput.value.trim();
@@ -244,9 +236,13 @@ function escapeHtml(text) {
     .replaceAll("'", "&#039;");
 }
 
-loginTabButton.addEventListener("click", () => setAuthMode("login"));
-registerTabButton.addEventListener("click", () => setAuthMode("register"));
-authForm.addEventListener("submit", handleAuthSubmit);
+showRegisterButton.addEventListener("click", () => {
+  registerStatus.textContent = "输入密钥 070619 会注册为管理员；不填则注册为普通用户。";
+  showView("register");
+});
+showLoginButton.addEventListener("click", () => showView("login"));
+loginForm.addEventListener("submit", loginAccount);
+registerForm.addEventListener("submit", registerAccount);
 logoutButton.addEventListener("click", logoutAccount);
 messageForm.addEventListener("submit", submitMessage);
 messageList.addEventListener("click", (event) => {
@@ -257,5 +253,4 @@ messageList.addEventListener("click", (event) => {
   deleteMessage(event.target.dataset.messageId);
 });
 
-setAuthMode("login");
 refreshSession();

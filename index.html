@@ -8,41 +8,58 @@
 </head>
 <body>
   <main class="app-shell">
-    <section class="board-panel">
+    <section class="auth-card" id="loginView">
+      <p class="eyebrow">Message Board</p>
+      <h1>登录</h1>
+      <form id="loginForm">
+        <label>
+          邮箱
+          <input id="loginEmailInput" type="email" placeholder="name@example.com" required>
+        </label>
+        <label>
+          密码
+          <input id="loginPasswordInput" type="password" placeholder="请输入密码" required>
+        </label>
+        <button type="submit">登录</button>
+        <p class="status-text" id="loginStatus">登录后进入留言板。</p>
+      </form>
+      <button class="link-button" type="button" id="showRegisterButton">还没有账号？去注册</button>
+    </section>
+
+    <section class="auth-card hidden" id="registerView">
+      <p class="eyebrow">Create Account</p>
+      <h1>注册</h1>
+      <form id="registerForm">
+        <label>
+          邮箱
+          <input id="registerEmailInput" type="email" placeholder="name@example.com" required>
+        </label>
+        <label>
+          密码
+          <input id="registerPasswordInput" type="password" placeholder="至少 6 位密码" required>
+        </label>
+        <label>
+          管理员密钥
+          <input id="adminKeyInput" type="password" placeholder="不填则注册为普通用户">
+        </label>
+        <button type="submit">注册</button>
+        <p class="status-text" id="registerStatus">输入密钥 070619 会注册为管理员；不填则注册为普通用户。</p>
+      </form>
+      <button class="link-button" type="button" id="showLoginButton">已有账号？返回登录</button>
+    </section>
+
+    <section class="board-panel hidden" id="boardView">
       <div class="top-bar">
         <div>
           <p class="eyebrow">Message Board</p>
           <h1>留言板</h1>
         </div>
-        <div class="auth-tabs" aria-label="账户操作">
-          <button class="tab-button active" type="button" id="loginTabButton">登录</button>
-          <button class="tab-button" type="button" id="registerTabButton">注册</button>
-        </div>
+        <button class="secondary-button" type="button" id="logoutButton">退出</button>
       </div>
 
-      <form class="auth-form" id="authForm">
-        <label>
-          邮箱
-          <input id="emailInput" type="email" placeholder="name@example.com" required>
-        </label>
-        <label>
-          密码
-          <input id="passwordInput" type="password" placeholder="至少 6 位密码" required>
-        </label>
-        <label id="adminKeyLabel" class="hidden">
-          管理员密钥
-          <input id="adminKeyInput" type="password" placeholder="不填则注册为普通用户">
-        </label>
-        <div class="button-row">
-          <button type="submit" id="authSubmitButton">登录</button>
-          <button class="secondary-button" type="button" id="logoutButton">退出</button>
-        </div>
-        <p class="status-text" id="authStatus">当前未登录。</p>
-      </form>
-
       <div class="mode-banner" id="modeBanner">
-        <strong>游客模式</strong>
-        <span>可以浏览留言。登录后可以发布留言。</span>
+        <strong>用户模式</strong>
+        <span>可以发布留言。</span>
       </div>
 
       <form class="message-form" id="messageForm">
@@ -55,7 +72,7 @@
           <textarea id="messageInput" placeholder="写下你想公开显示的话" required></textarea>
         </label>
         <button type="submit">发布留言</button>
-        <p class="status-text" id="messageStatus">登录后可以发布留言。</p>
+        <p class="status-text" id="messageStatus">你可以发布留言。</p>
       </form>
 
       <div class="message-list" id="messageList">
