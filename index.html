@@ -3,141 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>我的个人主页</title>
+  <title>留言板</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="site-header">
-    <nav>
-      <strong>小杨的主页</strong>
-      <div>
-        <a href="#about">介绍</a>
-        <a href="#skills">技能</a>
-        <a href="#projects">作品</a>
-        <a href="#message">留言</a>
-        <a href="#admin">管理</a>
-        <a href="#contact">联系</a>
-      </div>
-    </nav>
-  </header>
-
-  <main>
-    <section class="hero" id="about">
-      <div>
-        <p class="eyebrow">我的第一个完整网页</p>
-        <h1>你好，我正在学习制作网页</h1>
-        <p>这个页面包含个人介绍、技能列表、作品展示和联系方式。它已经很接近一个真正的个人主页了。</p>
-        <p class="version-note">新版更新：这个网站现在已经支持公开留言板。</p>
-        <button onclick="showMessage()">给我一个提示</button>
-      </div>
-      <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop" alt="一台正在写代码的电脑">
-    </section>
-
-    <section class="profile-builder">
-      <div class="form-panel">
-        <h2>修改主页内容</h2>
-        <input id="nameInput" type="text" placeholder="你的名字">
-        <input id="jobInput" type="text" placeholder="你的身份，比如：网页学习者">
-        <textarea id="bioInput" placeholder="简单介绍一下你自己"></textarea>
-        <button onclick="updateProfile()">更新主页预览</button>
-        <p id="greetingText">填写信息后，右边会生成你的介绍卡。</p>
+  <main class="app-shell">
+    <section class="board-panel">
+      <div class="top-bar">
+        <div>
+          <p class="eyebrow">Message Board</p>
+          <h1>留言板</h1>
+        </div>
+        <div class="auth-tabs" aria-label="账户操作">
+          <button class="tab-button active" type="button" id="loginTabButton">登录</button>
+          <button class="tab-button" type="button" id="registerTabButton">注册</button>
+        </div>
       </div>
 
-      <div class="preview-card">
-        <p class="label">个人介绍卡</p>
-        <h2 id="previewName">你的名字</h2>
-        <p id="previewJob">你的身份</p>
-        <p id="previewBio">这里会显示你的个人介绍。</p>
-      </div>
-    </section>
-
-    <section id="skills">
-      <div class="section-title">
-        <p class="eyebrow">Skills</p>
-        <h2>我正在学习的技能</h2>
-      </div>
-      <div class="skill-list">
-        <span>HTML 内容结构</span>
-        <span>CSS 页面样式</span>
-        <span>JavaScript 网页互动</span>
-        <span>响应式布局</span>
-      </div>
-    </section>
-
-    <section id="projects">
-      <div class="section-title">
-        <p class="eyebrow">Projects</p>
-        <h2>我的练习作品</h2>
-      </div>
-      <div class="project-grid">
-        <article>
-          <h3>个人介绍卡</h3>
-          <p>输入名字、身份和介绍，点击按钮后生成预览。</p>
-        </article>
-        <article>
-          <h3>链接和图片练习</h3>
-          <p>学习如何在网页里放图片，以及跳转到其他网站。</p>
-        </article>
-        <article>
-          <h3>网页三件套</h3>
-          <p>把 HTML、CSS、JavaScript 分成三个文件管理。</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="message-section" id="message">
-      <div class="section-title">
-        <p class="eyebrow">Message</p>
-        <h2>公开留言板</h2>
-      </div>
-      <form id="publicMessageForm">
-        <label>
-          你的名字
-          <input id="publicNameInput" name="name" type="text" placeholder="比如：小杨" required>
-        </label>
-        <label>
-          留言内容
-          <textarea id="publicMessageInput" name="message" placeholder="写下你想公开显示的话" required></textarea>
-        </label>
-        <button type="submit">发送留言</button>
-        <p id="publicMessageStatus">留言会保存到 Supabase 数据库，并显示在下方。</p>
-      </form>
-
-      <div class="message-list" id="publicMessageList">
-        <p>正在加载留言...</p>
-      </div>
-    </section>
-
-    <section class="admin-section" id="admin">
-      <div class="section-title">
-        <p class="eyebrow">Admin</p>
-        <h2>管理员登录</h2>
-      </div>
-      <form id="adminAuthForm">
+      <form class="auth-form" id="authForm">
         <label>
           邮箱
-          <input id="adminEmailInput" type="email" placeholder="你的管理员邮箱" required>
+          <input id="emailInput" type="email" placeholder="name@example.com" required>
         </label>
         <label>
           密码
-          <input id="adminPasswordInput" type="password" placeholder="至少 6 位密码" required>
+          <input id="passwordInput" type="password" placeholder="至少 6 位密码" required>
+        </label>
+        <label id="adminKeyLabel" class="hidden">
+          管理员密钥
+          <input id="adminKeyInput" type="password" placeholder="不填则注册为普通用户">
         </label>
         <div class="button-row">
-          <button type="button" id="adminSignupButton">注册管理员账号</button>
-          <button type="submit">登录</button>
-          <button type="button" id="adminLogoutButton">退出</button>
+          <button type="submit" id="authSubmitButton">登录</button>
+          <button class="secondary-button" type="button" id="logoutButton">退出</button>
         </div>
-        <p id="adminStatus">当前未登录。</p>
+        <p class="status-text" id="authStatus">当前未登录。</p>
       </form>
-    </section>
 
-    <section class="contact" id="contact">
-      <div>
-        <p class="eyebrow">Contact</p>
-        <h2>联系方式</h2>
-        <p>你可以把这里改成邮箱、微信号，或者任何你想展示的信息。</p>
+      <div class="mode-banner" id="modeBanner">
+        <strong>游客模式</strong>
+        <span>可以浏览留言。登录后可以发布留言。</span>
       </div>
-      <a href="https://www.baidu.com" target="_blank">访问我的链接</a>
+
+      <form class="message-form" id="messageForm">
+        <label>
+          显示名称
+          <input id="nameInput" type="text" placeholder="比如：小杨" required>
+        </label>
+        <label>
+          留言内容
+          <textarea id="messageInput" placeholder="写下你想公开显示的话" required></textarea>
+        </label>
+        <button type="submit">发布留言</button>
+        <p class="status-text" id="messageStatus">登录后可以发布留言。</p>
+      </form>
+
+      <div class="message-list" id="messageList">
+        <p>正在加载留言...</p>
+      </div>
     </section>
   </main>
 
