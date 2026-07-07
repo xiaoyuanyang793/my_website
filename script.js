@@ -14,13 +14,18 @@ const registerPasswordInput = document.querySelector("#registerPasswordInput");
 const adminKeyInput = document.querySelector("#adminKeyInput");
 const loginStatus = document.querySelector("#loginStatus");
 const registerStatus = document.querySelector("#registerStatus");
+const loginSubmitButton = document.querySelector("#loginSubmitButton");
+const registerSubmitButton = document.querySelector("#registerSubmitButton");
 const showRegisterButton = document.querySelector("#showRegisterButton");
 const showLoginButton = document.querySelector("#showLoginButton");
+const guestBrowseButton = document.querySelector("#guestBrowseButton");
 const logoutButton = document.querySelector("#logoutButton");
 const modeBanner = document.querySelector("#modeBanner");
 const messageForm = document.querySelector("#messageForm");
+const messageSubmitButton = document.querySelector("#messageSubmitButton");
 const nameInput = document.querySelector("#nameInput");
 const messageInput = document.querySelector("#messageInput");
+const messageCounter = document.querySelector("#messageCounter");
 const messageStatus = document.querySelector("#messageStatus");
 const messageList = document.querySelector("#messageList");
 
@@ -55,10 +60,18 @@ async function refreshSession() {
 
 function renderBoardMode() {
   modeBanner.classList.toggle("admin", currentRole === "admin");
+  messageForm.classList.toggle("hidden", currentRole === "guest");
+  logoutButton.textContent = currentRole === "guest" ? "返回登录" : "退出";
 
   if (currentRole === "admin") {
     modeBanner.innerHTML = `<strong>管理员模式</strong><span>${escapeHtml(currentUser.email)}，可以发布和删除留言。</span>`;
     messageStatus.textContent = "管理员可以发布留言，也可以删除留言。";
+    return;
+  }
+
+  if (currentRole === "guest") {
+    modeBanner.innerHTML = "<strong>游客预览</strong><span>可以浏览留言。登录后可以发布。</span>";
+    messageStatus.textContent = "登录后可以发布留言。";
     return;
   }
 
@@ -77,18 +90,21 @@ async function loginAccount(event) {
     return;
   }
 
+  setButtonLoading(loginSubmitButton, true, "登录中...");
   loginStatus.textContent = "正在登录...";
 
   const { error } = await database.auth.signInWithPassword({ email, password });
 
   if (error) {
-    loginStatus.textContent = "登录失败：" + error.message;
+    loginStatus.textContent = translateAuthError(error.message);
+    setButtonLoading(loginSubmitButton, false, "登录");
     return;
   }
 
   loginForm.reset();
   loginStatus.textContent = "登录成功。";
   await claimAdminRoleIfNeeded(email);
+  setButtonLoading(loginSubmitButton, false, "登录");
   refreshSession();
 }
 
@@ -139,6 +155,7 @@ async function registerAccount(event) {
     return;
   }
 
+  setButtonLoading(registerSubmitButton, true, "注册中...");
   registerStatus.textContent = "正在注册...";
 
   const { error } = await database.auth.signUp({
@@ -147,7 +164,8 @@ async function registerAccount(event) {
   });
 
   if (error) {
-    registerStatus.textContent = "注册失败：" + error.message;
+    registerStatus.textContent = translateAuthError(error.message);
+    setButtonLoading(registerSubmitButton, false, "注册");
     return;
   }
 
@@ -156,11 +174,17 @@ async function registerAccount(event) {
   }
 
   registerForm.reset();
+  setButtonLoading(registerSubmitButton, false, "注册");
   loginStatus.textContent = "账号已注册。请先点击邮箱里的确认链接，然后回来登录。";
   showView("login");
 }
 
 async function logoutAccount() {
+  if (currentRole === "guest") {
+    showView("login");
+    return;
+  }
+
   await database.auth.signOut();
   currentUser = null;
   currentRole = "guest";
@@ -183,12 +207,12 @@ async function loadMessages() {
   }
 
   if (data.length === 0) {
-    messageList.innerHTML = "<p>还没有留言，来写第一条吧。</p>";
+    messageList.innerHTML = `<div class="empty-state">还没有留言。登录后写下第一句吧。</div>`;
     return;
   }
 
   messageList.innerHTML = data.map((item) => {
-    const time = new Date(item.created_at).toLocaleString("zh-CN");
+    const time = formatRelativeTime(item.created_at);
     const deleteButton = currentRole === "admin"
       ? `<button class="delete-message-button" type="button" data-message-id="${item.id}">删除</button>`
       : "";
@@ -209,6 +233,11 @@ async function loadMessages() {
 async function submitMessage(event) {
   event.preventDefault();
 
+  if (!currentUser) {
+    messageStatus.textContent = "请先登录再发布留言。";
+    return;
+  }
+
   const name = nameInput.value.trim();
   const message = messageInput.value.trim();
 
@@ -217,6 +246,7 @@ async function submitMessage(event) {
     return;
   }
 
+  setButtonLoading(messageSubmitButton, true, "发布中...");
   messageStatus.textContent = "正在发布留言...";
 
   const { error } = await database
@@ -225,10 +255,13 @@ async function submitMessage(event) {
 
   if (error) {
     messageStatus.textContent = "发布失败，请检查数据库权限。";
+    setButtonLoading(messageSubmitButton, false, "发布留言");
     return;
   }
 
   messageForm.reset();
+  updateMessageCounter();
+  setButtonLoading(messageSubmitButton, false, "发布留言");
   messageStatus.textContent = "留言已发布。";
   loadMessages();
 }
@@ -236,6 +269,10 @@ async function submitMessage(event) {
 async function deleteMessage(messageId) {
   if (currentRole !== "admin") {
     messageStatus.textContent = "只有管理员可以删除留言。";
+    return;
+  }
+
+  if (!confirm("确定删除这条留言吗？")) {
     return;
   }
 
@@ -255,6 +292,68 @@ async function deleteMessage(messageId) {
   loadMessages();
 }
 
+function showGuestBoard() {
+  currentUser = null;
+  currentRole = "guest";
+  showView("board");
+  renderBoardMode();
+  loadMessages();
+}
+
+function updateMessageCounter() {
+  messageCounter.textContent = `${messageInput.value.length} / 240`;
+}
+
+function setButtonLoading(button, isLoading, text) {
+  button.disabled = isLoading;
+  button.textContent = text;
+}
+
+function translateAuthError(message) {
+  const lowerMessage = message.toLowerCase();
+
+  if (lowerMessage.includes("invalid login credentials")) {
+    return "邮箱或密码不正确。";
+  }
+
+  if (lowerMessage.includes("email not confirmed")) {
+    return "请先点击邮箱里的确认链接。";
+  }
+
+  if (lowerMessage.includes("password")) {
+    return "密码至少需要 6 位。";
+  }
+
+  if (lowerMessage.includes("already registered") || lowerMessage.includes("already exists")) {
+    return "这个邮箱已经注册过。";
+  }
+
+  return "操作失败：" + message;
+}
+
+function formatRelativeTime(value) {
+  const date = new Date(value);
+  const diffSeconds = Math.round((Date.now() - date.getTime()) / 1000);
+
+  if (diffSeconds < 60) {
+    return "刚刚";
+  }
+
+  const diffMinutes = Math.round(diffSeconds / 60);
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes} 分钟前`;
+  }
+
+  const diffHours = Math.round(diffMinutes / 60);
+
+  if (diffHours < 24) {
+    return `${diffHours} 小时前`;
+  }
+
+  return date.toLocaleString("zh-CN");
+}
+
 function escapeHtml(text) {
   return text
     .replaceAll("&", "&amp;")
@@ -265,14 +364,16 @@ function escapeHtml(text) {
 }
 
 showRegisterButton.addEventListener("click", () => {
-  registerStatus.textContent = "普通用户可留空；管理员请填写授权密钥。";
+  registerStatus.textContent = "注册后请先完成邮箱确认。";
   showView("register");
 });
 showLoginButton.addEventListener("click", () => showView("login"));
+guestBrowseButton.addEventListener("click", showGuestBoard);
 loginForm.addEventListener("submit", loginAccount);
 registerForm.addEventListener("submit", registerAccount);
 logoutButton.addEventListener("click", logoutAccount);
 messageForm.addEventListener("submit", submitMessage);
+messageInput.addEventListener("input", updateMessageCounter);
 messageList.addEventListener("click", (event) => {
   if (!event.target.matches(".delete-message-button")) {
     return;
@@ -281,4 +382,5 @@ messageList.addEventListener("click", (event) => {
   deleteMessage(event.target.dataset.messageId);
 });
 
+updateMessageCounter();
 refreshSession();

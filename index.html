@@ -3,76 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>留言板</title>
+  <title>留言墙</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="app-shell">
     <section class="auth-card" id="loginView">
-      <p class="eyebrow">Message Board</p>
-      <h1>登录</h1>
+      <div class="brand-mark">留言墙</div>
+      <p class="eyebrow">Public Notes</p>
+      <h1>登录留言墙</h1>
+      <p class="lead">一个干净的公开留言板。登录后可以发布留言，管理员可以维护内容。</p>
+
       <form id="loginForm">
-        <label>
+        <label for="loginEmailInput">
           邮箱
-          <input id="loginEmailInput" type="email" placeholder="name@example.com" required>
+          <input id="loginEmailInput" type="email" placeholder="name@example.com" autocomplete="email" required>
         </label>
-        <label>
+        <label for="loginPasswordInput">
           密码
-          <input id="loginPasswordInput" type="password" placeholder="请输入密码" required>
+          <input id="loginPasswordInput" type="password" placeholder="请输入密码" autocomplete="current-password" required>
         </label>
-        <button type="submit">登录</button>
-        <p class="status-text" id="loginStatus">登录后进入留言板。</p>
+        <button class="full-button" type="submit" id="loginSubmitButton">登录</button>
+        <p class="status-text" id="loginStatus" aria-live="polite">登录后进入留言板。</p>
       </form>
-      <button class="link-button" type="button" id="showRegisterButton">还没有账号？去注册</button>
+
+      <div class="auth-actions">
+        <button class="link-button" type="button" id="showRegisterButton">注册账号</button>
+        <button class="link-button" type="button" id="guestBrowseButton">先看看留言</button>
+      </div>
     </section>
 
     <section class="auth-card hidden" id="registerView">
+      <div class="brand-mark">留言墙</div>
       <p class="eyebrow">Create Account</p>
-      <h1>注册</h1>
+      <h1>注册账号</h1>
+      <p class="lead">普通用户无需填写管理员密钥。管理员账号会在邮箱确认并登录后完成授权。</p>
+
       <form id="registerForm">
-        <label>
+        <label for="registerEmailInput">
           邮箱
-          <input id="registerEmailInput" type="email" placeholder="name@example.com" required>
+          <input id="registerEmailInput" type="email" placeholder="name@example.com" autocomplete="email" required>
         </label>
-        <label>
+        <label for="registerPasswordInput">
           密码
-          <input id="registerPasswordInput" type="password" placeholder="至少 6 位密码" required>
+          <input id="registerPasswordInput" type="password" placeholder="至少 6 位密码" autocomplete="new-password" required>
         </label>
-        <label>
+        <label for="adminKeyInput">
           管理员密钥
-          <input id="adminKeyInput" type="password" placeholder="不填则注册为普通用户">
+          <input id="adminKeyInput" type="password" placeholder="普通用户留空">
         </label>
-        <button type="submit">注册</button>
-        <p class="status-text" id="registerStatus">普通用户可留空；管理员请填写授权密钥。</p>
+        <button class="full-button" type="submit" id="registerSubmitButton">注册</button>
+        <p class="status-text" id="registerStatus" aria-live="polite">注册后请先完成邮箱确认。</p>
       </form>
+
       <button class="link-button" type="button" id="showLoginButton">已有账号？返回登录</button>
     </section>
 
     <section class="board-panel hidden" id="boardView">
       <div class="top-bar">
         <div>
-          <p class="eyebrow">Message Board</p>
-          <h1>留言板</h1>
+          <p class="eyebrow">Message Wall</p>
+          <h1>公开留言墙</h1>
         </div>
-        <button class="secondary-button" type="button" id="logoutButton">退出</button>
+        <button class="secondary-button" type="button" id="logoutButton">返回登录</button>
       </div>
 
       <div class="mode-banner" id="modeBanner">
-        <strong>用户模式</strong>
-        <span>可以发布留言。</span>
+        <strong>游客模式</strong>
+        <span>可以浏览留言。登录后可以发布。</span>
       </div>
 
       <form class="message-form" id="messageForm">
-        <label>
+        <label for="nameInput">
           显示名称
-          <input id="nameInput" type="text" placeholder="比如：小杨" required>
+          <input id="nameInput" type="text" placeholder="比如：小杨" maxlength="24" required>
         </label>
-        <label>
+        <label for="messageInput">
           留言内容
-          <textarea id="messageInput" placeholder="写下你想公开显示的话" required></textarea>
+          <textarea id="messageInput" placeholder="写下你想公开显示的话" maxlength="240" required></textarea>
         </label>
-        <button type="submit">发布留言</button>
-        <p class="status-text" id="messageStatus">你可以发布留言。</p>
+        <div class="form-footer">
+          <button type="submit" id="messageSubmitButton">发布留言</button>
+          <span id="messageCounter">0 / 240</span>
+        </div>
+        <p class="status-text" id="messageStatus" aria-live="polite">登录后可以发布留言。</p>
       </form>
 
       <div class="message-list" id="messageList">
