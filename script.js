@@ -11,16 +11,19 @@ const loginEmailInput = document.querySelector("#loginEmailInput");
 const loginPasswordInput = document.querySelector("#loginPasswordInput");
 const registerEmailInput = document.querySelector("#registerEmailInput");
 const registerPasswordInput = document.querySelector("#registerPasswordInput");
+const adminKeyLabel = document.querySelector("#adminKeyLabel");
 const adminKeyInput = document.querySelector("#adminKeyInput");
 const loginStatus = document.querySelector("#loginStatus");
 const registerStatus = document.querySelector("#registerStatus");
 const loginSubmitButton = document.querySelector("#loginSubmitButton");
 const registerSubmitButton = document.querySelector("#registerSubmitButton");
 const showRegisterButton = document.querySelector("#showRegisterButton");
+const showAdminKeyButton = document.querySelector("#showAdminKeyButton");
 const showLoginButton = document.querySelector("#showLoginButton");
 const guestBrowseButton = document.querySelector("#guestBrowseButton");
 const logoutButton = document.querySelector("#logoutButton");
 const modeBanner = document.querySelector("#modeBanner");
+const boardSummary = document.querySelector("#boardSummary");
 const messageForm = document.querySelector("#messageForm");
 const messageSubmitButton = document.querySelector("#messageSubmitButton");
 const nameInput = document.querySelector("#nameInput");
@@ -202,9 +205,12 @@ async function loadMessages() {
     .order("created_at", { ascending: false });
 
   if (error) {
+    boardSummary.textContent = "留言读取失败";
     messageList.innerHTML = "<p>留言加载失败，请稍后再试。</p>";
     return;
   }
+
+  boardSummary.textContent = `当前共有 ${data.length} 条留言`;
 
   if (data.length === 0) {
     messageList.innerHTML = `<div class="empty-state">还没有留言。登录后写下第一句吧。</div>`;
@@ -364,8 +370,15 @@ function escapeHtml(text) {
 }
 
 showRegisterButton.addEventListener("click", () => {
+  adminKeyLabel.classList.add("hidden");
+  adminKeyInput.value = "";
   registerStatus.textContent = "注册后请先完成邮箱确认。";
   showView("register");
+});
+showAdminKeyButton.addEventListener("click", () => {
+  adminKeyLabel.classList.remove("hidden");
+  registerStatus.textContent = "管理员请填写授权密钥。普通用户无需填写。";
+  adminKeyInput.focus();
 });
 showLoginButton.addEventListener("click", () => showView("login"));
 guestBrowseButton.addEventListener("click", showGuestBoard);

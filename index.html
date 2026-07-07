@@ -48,7 +48,7 @@
           密码
           <input id="registerPasswordInput" type="password" placeholder="至少 6 位密码" autocomplete="new-password" required>
         </label>
-        <label for="adminKeyInput">
+        <label for="adminKeyInput" id="adminKeyLabel" class="hidden">
           管理员密钥
           <input id="adminKeyInput" type="password" placeholder="普通用户留空">
         </label>
@@ -56,7 +56,10 @@
         <p class="status-text" id="registerStatus" aria-live="polite">注册后请先完成邮箱确认。</p>
       </form>
 
-      <button class="link-button" type="button" id="showLoginButton">已有账号？返回登录</button>
+      <div class="auth-actions">
+        <button class="link-button" type="button" id="showAdminKeyButton">我是管理员</button>
+        <button class="link-button" type="button" id="showLoginButton">已有账号？返回登录</button>
+      </div>
     </section>
 
     <section class="board-panel hidden" id="boardView">
@@ -72,6 +75,7 @@
         <strong>游客模式</strong>
         <span>可以浏览留言。登录后可以发布。</span>
       </div>
+      <div class="board-summary" id="boardSummary">正在读取留言...</div>
 
       <form class="message-form" id="messageForm">
         <label for="nameInput">

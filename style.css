@@ -1,32 +1,63 @@
+:root {
+  --ink: #182230;
+  --muted: #667085;
+  --line: #d0d5dd;
+  --paper: #ffffff;
+  --soft: #f6f7f9;
+  --blue: #2563eb;
+  --blue-dark: #1d4ed8;
+  --green-soft: #ecfdf5;
+  --green-line: #a7f3d0;
+  --red: #dc2626;
+  --red-dark: #b91c1c;
+  --amber: #f59e0b;
+}
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #f3f5f7;
-  color: #1f2933;
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.08), transparent 34%),
+    linear-gradient(225deg, rgba(245, 158, 11, 0.13), transparent 36%),
+    #f3f5f7;
+  color: var(--ink);
 }
 
 .app-shell {
-  max-width: 880px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 920px;
   margin: 0 auto;
   padding: 34px 18px 60px;
 }
 
-.auth-card {
-  max-width: 440px;
-  margin: 12vh auto 0;
-  padding: 28px;
-  background: white;
-  border: 1px solid #d8dee6;
+.auth-card,
+.board-panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
   border-radius: 8px;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.09);
+}
+
+.auth-card {
+  box-sizing: border-box;
+  max-width: 460px;
+  margin: 10vh auto 0;
+  padding: 30px;
 }
 
 .board-panel {
-  padding: 28px;
-  background: white;
-  border: 1px solid #d8dee6;
-  border-radius: 8px;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  padding: 30px;
+}
+
+.brand-mark {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 8px 10px;
+  background: #111827;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
 }
 
 .top-bar {
@@ -39,7 +70,7 @@ body {
 
 .eyebrow {
   margin: 0 0 8px;
-  color: #52606d;
+  color: var(--muted);
   font-size: 14px;
   font-weight: bold;
   text-transform: uppercase;
@@ -48,53 +79,70 @@ body {
 h1 {
   margin: 0;
   font-size: 38px;
+  line-height: 1.16;
 }
 
-.auth-tabs {
-  display: flex;
-  gap: 8px;
+.lead {
+  margin: 14px 0 24px;
+  color: var(--muted);
+  line-height: 1.7;
 }
 
 button {
   padding: 10px 16px;
   border: 0;
   border-radius: 6px;
-  background: #2563eb;
+  background: var(--blue);
   color: white;
   font-size: 16px;
   cursor: pointer;
 }
 
 button:hover {
-  background: #1d4ed8;
+  background: var(--blue-dark);
 }
 
-.tab-button,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.full-button {
+  width: 100%;
+}
+
 .secondary-button {
   background: #e5e7eb;
-  color: #1f2933;
+  color: var(--ink);
 }
 
-.tab-button:hover,
 .secondary-button:hover {
   background: #d1d5db;
-}
-
-.tab-button.active {
-  background: #2563eb;
-  color: white;
 }
 
 .link-button {
   padding: 0;
   background: transparent;
-  color: #2563eb;
+  color: var(--blue);
   font-weight: bold;
 }
 
 .link-button:hover {
   background: transparent;
-  color: #1d4ed8;
+  color: var(--blue-dark);
+}
+
+.auth-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
 }
 
 label {
@@ -118,20 +166,23 @@ textarea {
 }
 
 textarea {
-  min-height: 110px;
+  min-height: 112px;
   resize: vertical;
 }
 
-.auth-form,
 .message-form {
-  max-width: 620px;
+  max-width: 660px;
   margin-bottom: 26px;
 }
 
-.button-row {
+.form-footer {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  gap: 16px;
+}
+
+#messageCounter {
+  color: var(--muted);
 }
 
 .status-text {
@@ -155,8 +206,20 @@ textarea {
 }
 
 .mode-banner.admin {
-  background: #ecfdf5;
-  border-color: #a7f3d0;
+  background: var(--green-soft);
+  border-color: var(--green-line);
+}
+
+.board-summary {
+  display: inline-block;
+  margin-bottom: 22px;
+  padding: 7px 12px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  color: #8a4b16;
+  font-size: 14px;
+  font-weight: bold;
 }
 
 .message-list {
@@ -167,8 +230,9 @@ textarea {
 
 .message-card {
   padding: 16px;
-  background: #f8fafc;
-  border: 1px solid #d8dee6;
+  background: #fffdf7;
+  border: 1px solid #eadfbf;
+  border-left: 5px solid var(--amber);
   border-radius: 8px;
 }
 
@@ -191,22 +255,40 @@ textarea {
 .message-time {
   display: block;
   margin-top: 10px;
-  color: #697586;
+  color: var(--muted);
   font-size: 14px;
+}
+
+.empty-state {
+  padding: 28px;
+  background: var(--soft);
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  color: var(--muted);
 }
 
 .delete-message-button {
   padding: 7px 10px;
-  background: #dc2626;
+  background: var(--red);
 }
 
 .delete-message-button:hover {
-  background: #b91c1c;
+  background: var(--red-dark);
 }
 
 @media (max-width: 680px) {
-  .board-panel {
+  .app-shell {
+    padding: 18px 12px 40px;
+  }
+
+  .auth-card {
+    width: 100%;
+    margin: 3vh auto 0;
     padding: 22px;
+  }
+
+  .board-panel {
+    padding: 20px;
   }
 
   .top-bar {
@@ -215,5 +297,15 @@ textarea {
 
   h1 {
     font-size: 32px;
+  }
+
+  .auth-actions,
+  .form-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .message-form button {
+    width: 100%;
   }
 }
