@@ -15,6 +15,7 @@
         <a href="#skills">技能</a>
         <a href="#projects">作品</a>
         <a href="#message">留言</a>
+        <a href="#admin">管理</a>
         <a href="#contact">联系</a>
       </div>
     </nav>
@@ -105,6 +106,29 @@
       <div class="message-list" id="publicMessageList">
         <p>正在加载留言...</p>
       </div>
+    </section>
+
+    <section class="admin-section" id="admin">
+      <div class="section-title">
+        <p class="eyebrow">Admin</p>
+        <h2>管理员登录</h2>
+      </div>
+      <form id="adminAuthForm">
+        <label>
+          邮箱
+          <input id="adminEmailInput" type="email" placeholder="你的管理员邮箱" required>
+        </label>
+        <label>
+          密码
+          <input id="adminPasswordInput" type="password" placeholder="至少 6 位密码" required>
+        </label>
+        <div class="button-row">
+          <button type="button" id="adminSignupButton">注册管理员账号</button>
+          <button type="submit">登录</button>
+          <button type="button" id="adminLogoutButton">退出</button>
+        </div>
+        <p id="adminStatus">当前未登录。</p>
+      </form>
     </section>
 
     <section class="contact" id="contact">

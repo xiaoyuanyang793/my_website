@@ -35,6 +35,12 @@ const publicNameInput = document.querySelector("#publicNameInput");
 const publicMessageInput = document.querySelector("#publicMessageInput");
 const publicMessageStatus = document.querySelector("#publicMessageStatus");
 const publicMessageList = document.querySelector("#publicMessageList");
+const adminAuthForm = document.querySelector("#adminAuthForm");
+const adminEmailInput = document.querySelector("#adminEmailInput");
+const adminPasswordInput = document.querySelector("#adminPasswordInput");
+const adminSignupButton = document.querySelector("#adminSignupButton");
+const adminLogoutButton = document.querySelector("#adminLogoutButton");
+const adminStatus = document.querySelector("#adminStatus");
 
 async function loadPublicMessages() {
   if (!publicMessageList) {
@@ -110,4 +116,78 @@ function escapeHtml(text) {
 if (publicMessageForm) {
   publicMessageForm.addEventListener("submit", submitPublicMessage);
   loadPublicMessages();
+}
+
+async function refreshAdminStatus() {
+  if (!adminStatus) {
+    return;
+  }
+
+  const { data } = await database.auth.getUser();
+  const user = data.user;
+
+  if (user) {
+    adminStatus.textContent = "管理员已登录：" + user.email;
+    return;
+  }
+
+  adminStatus.textContent = "当前未登录。";
+}
+
+async function signupAdmin() {
+  const email = adminEmailInput.value.trim();
+  const password = adminPasswordInput.value.trim();
+
+  if (email === "" || password === "") {
+    adminStatus.textContent = "请填写邮箱和密码。";
+    return;
+  }
+
+  adminStatus.textContent = "正在注册...";
+
+  const { error } = await database.auth.signUp({ email, password });
+
+  if (error) {
+    adminStatus.textContent = "注册失败：" + error.message;
+    return;
+  }
+
+  adminStatus.textContent = "注册成功。请查看邮箱确认邮件，然后再登录。";
+}
+
+async function loginAdmin(event) {
+  event.preventDefault();
+
+  const email = adminEmailInput.value.trim();
+  const password = adminPasswordInput.value.trim();
+
+  if (email === "" || password === "") {
+    adminStatus.textContent = "请填写邮箱和密码。";
+    return;
+  }
+
+  adminStatus.textContent = "正在登录...";
+
+  const { error } = await database.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    adminStatus.textContent = "登录失败：" + error.message;
+    return;
+  }
+
+  adminAuthForm.reset();
+  refreshAdminStatus();
+}
+
+async function logoutAdmin() {
+  adminStatus.textContent = "正在退出...";
+  await database.auth.signOut();
+  refreshAdminStatus();
+}
+
+if (adminAuthForm) {
+  adminAuthForm.addEventListener("submit", loginAdmin);
+  adminSignupButton.addEventListener("click", signupAdmin);
+  adminLogoutButton.addEventListener("click", logoutAdmin);
+  refreshAdminStatus();
 }

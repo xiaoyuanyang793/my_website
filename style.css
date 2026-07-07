@@ -197,8 +197,22 @@ article h3 {
   border-radius: 8px;
 }
 
-.message-section form {
+.message-section form,
+.admin-section form {
   max-width: 620px;
+}
+
+.admin-section {
+  padding: 28px;
+  background: white;
+  border: 1px solid #d8dee6;
+  border-radius: 8px;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .message-list {
