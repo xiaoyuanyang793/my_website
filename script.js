@@ -41,6 +41,7 @@ const adminPasswordInput = document.querySelector("#adminPasswordInput");
 const adminSignupButton = document.querySelector("#adminSignupButton");
 const adminLogoutButton = document.querySelector("#adminLogoutButton");
 const adminStatus = document.querySelector("#adminStatus");
+let currentAdminUser = null;
 
 async function loadPublicMessages() {
   if (!publicMessageList) {
@@ -51,7 +52,7 @@ async function loadPublicMessages() {
 
   const { data, error } = await database
     .from("messages")
-    .select("name, message, created_at")
+    .select("id, name, message, created_at")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -66,10 +67,16 @@ async function loadPublicMessages() {
 
   publicMessageList.innerHTML = data.map((item) => {
     const time = new Date(item.created_at).toLocaleString("zh-CN");
+    const deleteButton = currentAdminUser
+      ? `<button class="delete-message-button" type="button" data-message-id="${item.id}">删除</button>`
+      : "";
 
     return `
       <article class="message-card">
-        <h3>${escapeHtml(item.name)}</h3>
+        <div class="message-card-header">
+          <h3>${escapeHtml(item.name)}</h3>
+          ${deleteButton}
+        </div>
         <p>${escapeHtml(item.message)}</p>
         <span class="message-time">${time}</span>
       </article>
@@ -104,6 +111,28 @@ async function submitPublicMessage(event) {
   loadPublicMessages();
 }
 
+async function deletePublicMessage(messageId) {
+  if (!currentAdminUser) {
+    publicMessageStatus.textContent = "请先以管理员身份登录。";
+    return;
+  }
+
+  publicMessageStatus.textContent = "正在删除留言...";
+
+  const { error } = await database
+    .from("messages")
+    .delete()
+    .eq("id", messageId);
+
+  if (error) {
+    publicMessageStatus.textContent = "删除失败，请检查 Supabase 删除权限。";
+    return;
+  }
+
+  publicMessageStatus.textContent = "留言已删除。";
+  loadPublicMessages();
+}
+
 function escapeHtml(text) {
   return text
     .replaceAll("&", "&amp;")
@@ -115,6 +144,13 @@ function escapeHtml(text) {
 
 if (publicMessageForm) {
   publicMessageForm.addEventListener("submit", submitPublicMessage);
+  publicMessageList.addEventListener("click", (event) => {
+    if (!event.target.matches(".delete-message-button")) {
+      return;
+    }
+
+    deletePublicMessage(event.target.dataset.messageId);
+  });
   loadPublicMessages();
 }
 
@@ -125,13 +161,16 @@ async function refreshAdminStatus() {
 
   const { data } = await database.auth.getUser();
   const user = data.user;
+  currentAdminUser = user;
 
   if (user) {
     adminStatus.textContent = "管理员已登录：" + user.email;
+    loadPublicMessages();
     return;
   }
 
   adminStatus.textContent = "当前未登录。";
+  loadPublicMessages();
 }
 
 async function signupAdmin() {

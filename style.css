@@ -228,8 +228,24 @@ article h3 {
   border-radius: 8px;
 }
 
+.message-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .message-card h3 {
   margin: 0 0 8px;
+}
+
+.delete-message-button {
+  padding: 7px 10px;
+  background: #dc2626;
+}
+
+.delete-message-button:hover {
+  background: #b91c1c;
 }
 
 .message-card p {
