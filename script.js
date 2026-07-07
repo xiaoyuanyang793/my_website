@@ -232,7 +232,7 @@ function escapeHtml(text) {
 }
 
 showRegisterButton.addEventListener("click", () => {
-  registerStatus.textContent = "输入密钥 070619 会注册为管理员；不填则注册为普通用户。";
+  registerStatus.textContent = "普通用户可留空；管理员请填写授权密钥。";
   showView("register");
 });
 showLoginButton.addEventListener("click", () => showView("login"));
