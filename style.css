@@ -1,25 +1,28 @@
 :root {
-  --ink: #182230;
-  --muted: #667085;
-  --line: #d0d5dd;
+  --ink: #18332f;
+  --muted: #6b7c78;
+  --line: #ddebe7;
   --paper: #ffffff;
-  --soft: #f6f7f9;
-  --blue: #2563eb;
-  --blue-dark: #1d4ed8;
+  --paper-soft: #fbfffd;
+  --soft: #f6faf8;
+  --primary: #2bb3a3;
+  --primary-dark: #229487;
+  --focus: rgba(43, 179, 163, 0.22);
   --green-soft: #ecfdf5;
   --green-line: #a7f3d0;
-  --red: #dc2626;
-  --red-dark: #b91c1c;
-  --amber: #f59e0b;
+  --red: #e05a47;
+  --red-dark: #c84d3d;
+  --accent: #ffb88c;
+  --shadow: 0 12px 32px rgba(24, 51, 47, 0.08);
 }
 
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background:
-    linear-gradient(135deg, rgba(37, 99, 235, 0.08), transparent 34%),
-    linear-gradient(225deg, rgba(245, 158, 11, 0.13), transparent 36%),
-    #f3f5f7;
+    radial-gradient(circle at 16% 12%, rgba(43, 179, 163, 0.12), transparent 30%),
+    radial-gradient(circle at 86% 10%, rgba(255, 184, 140, 0.16), transparent 32%),
+    #f6faf8;
   color: var(--ink);
 }
 
@@ -35,8 +38,8 @@ body {
 .board-panel {
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 8px;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.09);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
 }
 
 .auth-card {
@@ -53,10 +56,11 @@ body {
 .brand-mark {
   display: inline-block;
   margin-bottom: 20px;
-  padding: 8px 10px;
-  background: #111827;
-  border-radius: 6px;
-  color: white;
+  padding: 8px 13px;
+  background: #e8f7f3;
+  border: 1px solid #c7ebe4;
+  border-radius: 999px;
+  color: #173c38;
   font-weight: bold;
 }
 
@@ -91,21 +95,23 @@ h1 {
 button {
   padding: 10px 16px;
   border: 0;
-  border-radius: 6px;
-  background: var(--blue);
+  border-radius: 999px;
+  background: var(--primary);
   color: white;
   font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(43, 179, 163, 0.22);
   cursor: pointer;
 }
 
 button:hover {
-  background: var(--blue-dark);
+  background: var(--primary-dark);
 }
 
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -119,24 +125,26 @@ button:disabled {
 }
 
 .secondary-button {
-  background: #e5e7eb;
+  background: #e8f7f3;
   color: var(--ink);
+  box-shadow: none;
 }
 
 .secondary-button:hover {
-  background: #d1d5db;
+  background: #d5f0ea;
 }
 
 .link-button {
   padding: 0;
   background: transparent;
-  color: var(--blue);
+  color: var(--primary-dark);
   font-weight: bold;
+  box-shadow: none;
 }
 
 .link-button:hover {
   background: transparent;
-  color: var(--blue-dark);
+  color: #176f66;
 }
 
 .auth-actions {
@@ -158,8 +166,9 @@ textarea {
   width: 100%;
   margin-top: 8px;
   padding: 10px 12px;
-  border: 1px solid #b8c2cc;
-  border-radius: 6px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper-soft);
   font-size: 16px;
   font-family: inherit;
   font-weight: normal;
@@ -201,8 +210,8 @@ textarea {
   margin-bottom: 24px;
   padding: 14px 16px;
   background: #eef6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
+  border: 1px solid #c7ebe4;
+  border-radius: 16px;
 }
 
 .mode-banner.admin {
@@ -231,9 +240,19 @@ textarea {
 .message-card {
   padding: 16px;
   background: #fffdf7;
-  border: 1px solid #eadfbf;
-  border-left: 5px solid var(--amber);
-  border-radius: 8px;
+  border: 1px solid #efe7d2;
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(24, 51, 47, 0.05);
+}
+
+.message-card:nth-child(3n + 2) {
+  background: #f2fbf8;
+  border-color: #d7eee8;
+}
+
+.message-card:nth-child(3n + 3) {
+  background: #f7f8ff;
+  border-color: #e3e7f5;
 }
 
 .message-card-header {
@@ -263,7 +282,7 @@ textarea {
   padding: 28px;
   background: var(--soft);
   border: 1px dashed var(--line);
-  border-radius: 8px;
+  border-radius: 16px;
   color: var(--muted);
 }
 
