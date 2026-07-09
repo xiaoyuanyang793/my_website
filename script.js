@@ -163,7 +163,10 @@ async function registerAccount(event) {
 
   const { error } = await database.auth.signUp({
     email,
-    password
+    password,
+    options: {
+      emailRedirectTo: window.location.origin
+    }
   });
 
   if (error) {
@@ -260,7 +263,7 @@ async function submitMessage(event) {
     .insert({ name, message });
 
   if (error) {
-    messageStatus.textContent = "发布失败，请检查数据库权限。";
+    messageStatus.textContent = "发布失败：" + error.message;
     setButtonLoading(messageSubmitButton, false, "发布留言");
     return;
   }
